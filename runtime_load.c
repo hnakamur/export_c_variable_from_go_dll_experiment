@@ -10,7 +10,10 @@ int main(int argc, char **argv) {
 	}
 	printf("after dlopen. handle=%llx\n", (long long unsigned)handle);
 	int *i_ptr = dlsym(handle, "i");
-	printf("i=%d\n", *i_ptr);
+	printf("i before calling libInit=%d\n", *i_ptr);
+	void (*libInit)() = dlsym(handle, "libInit");
+	libInit();
+	printf("i after calling libInit=%d\n", *i_ptr);
 #ifndef NO_DLCLOSE
 	printf("calling dlclose\n");
 	dlclose(handle);
