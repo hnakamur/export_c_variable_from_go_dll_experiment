@@ -9,6 +9,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	printf("after dlopen. handle=%llx\n", (long long unsigned)handle);
+	usleep(1000 * 1000);
 	int *i_ptr = dlsym(handle, "i");
 	printf("i=%d\n", *i_ptr);
 #ifndef NO_DLCLOSE
