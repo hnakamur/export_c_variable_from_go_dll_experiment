@@ -39,7 +39,9 @@ go build -buildmode=c-shared -o libgodll.so libgodll.go
 cc -o compiletime_load compiletime_load.c -L. -lgodll
 LD_LIBRARY_PATH=. ./compiletime_load
 compiletime_load started
-i=0
+#1 i=0
+#2 i=0
+#3 i=0
 echo status=$?
 status=0
 ```
@@ -91,14 +93,16 @@ status=0
 $ make clean > /dev/null 2>&1 && make test_compiletime
 go build -buildmode=c-shared -o libgodll.so libgodll.go
 cc -o compiletime_load compiletime_load.c -L. -lgodll
-compiletime_load.c:7:2: warning: implicit declaration of function 'usleep' is
+compiletime_load.c:10:2: warning: implicit declaration of function 'usleep' is
       invalid in C99 [-Wimplicit-function-declaration]
         usleep(1000 * 1000);
         ^
 1 warning generated.
 LD_LIBRARY_PATH=. ./compiletime_load
 compiletime_load started
-i=0
+#1 i=0
+#2 i=0
+#3 i=0
 echo status=$?
 status=0
 ```
