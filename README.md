@@ -58,16 +58,47 @@ $ uname -v
 Darwin Kernel Version 14.4.0: Thu May 28 11:35:04 PDT 2015; root:xnu-2782.30.5~1/RELEASE_X86_64
 ```
 
-It failed to compile libgodll.so.
+`//#cgo CFLAGS: "-fcommon"` is needed to avoid duplicate symbol link error in clang.
+
+### load a shared library at runtime using dlopen
+
+`i` becomes 1 after `usleep`.
 
 ```
-$ make clean > /dev/null 2>&1 && make libgodll.so
+$ make clean > /dev/null 2>&1 && make test_runtime
+cc -o runtime_load runtime_load.c  -ldl
+runtime_load.c:12:2: warning: implicit declaration of function 'usleep' is
+      invalid in C99 [-Wimplicit-function-declaration]
+        usleep(1000 * 1000);
+        ^
+1 warning generated.
 go build -buildmode=c-shared -o libgodll.so libgodll.go
-# command-line-arguments
-duplicate symbol _i in:
-    $WORK/command-line-arguments/_obj/_cgo_export.o
-    $WORK/command-line-arguments/_obj/libgodll.cgo2.o
-ld: 1 duplicate symbol for architecture x86_64
-clang: error: linker command failed with exit code 1 (use -v to see invocation)
-make: *** [libgodll.so] Error 2
+LD_LIBRARY_PATH=. ./runtime_load
+runtime_load started
+after dlopen. handle=7f925bc04cc0
+i=1
+calling dlclose
+after dlclose
+echo status=$?
+status=0
+```
+
+### link a shared library at compile time
+
+`i` remains 0 even after `usleep`
+
+```
+$ make clean > /dev/null 2>&1 && make test_compiletime
+go build -buildmode=c-shared -o libgodll.so libgodll.go
+cc -o compiletime_load compiletime_load.c -L. -lgodll
+compiletime_load.c:7:2: warning: implicit declaration of function 'usleep' is
+      invalid in C99 [-Wimplicit-function-declaration]
+        usleep(1000 * 1000);
+        ^
+1 warning generated.
+LD_LIBRARY_PATH=. ./compiletime_load
+compiletime_load started
+i=0
+echo status=$?
+status=0
 ```

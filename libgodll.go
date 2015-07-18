@@ -1,5 +1,6 @@
 package main
 
+//#cgo CFLAGS: "-fcommon"
 // int i;
 import "C"
 
