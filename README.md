@@ -29,15 +29,37 @@ echo status=$?
 status=0
 ```
 
+### link a C archive statically at compile time
+
+```
+$ make clean > /dev/null 2>&1 && make test_compiletime_archive
+go build -buildmode=c-archive -o libgodll.a libgodll.go
+cc -o compiletime_archive compiletime_load.c -L. -lgodll -lpthread
+./compiletime_archive
+compiletime_load started
+#1 i=0
+#2 i=1
+#3 i=1
+echo status=$?
+status=0
+```
+
+NOTE: -lthread is needed on Linux to avoid the following link error.
+
+```
+./libgodll.a(000001.o): In function `x_cgo_sys_thread_create':
+/tmp/workdir/go/src/runtime/cgo/gcc_libinit.c:20: undefined reference to `pthread_create'
+```
+
 ### link a shared library at compile time
 
 `i` is not set to 1.
 
 ```
-$ make clean > /dev/null 2>&1 && make test_compiletime
+$ make clean > /dev/null 2>&1 && make test_compiletime_shared
 go build -buildmode=c-shared -o libgodll.so libgodll.go
-cc -o compiletime_load compiletime_load.c -L. -lgodll
-LD_LIBRARY_PATH=. ./compiletime_load
+cc -o compiletime_shared compiletime_load.c -L. -lgodll
+LD_LIBRARY_PATH=. ./compiletime_shared
 compiletime_load started
 #1 i=0
 #2 i=0
@@ -45,7 +67,6 @@ compiletime_load started
 echo status=$?
 status=0
 ```
-
 
 ## OS X
 
@@ -72,7 +93,7 @@ cc -o runtime_load runtime_load.c  -ldl
 go build -buildmode=c-shared -o libgodll.so libgodll.go
 LD_LIBRARY_PATH=. ./runtime_load
 runtime_load started
-after dlopen. handle=7fedebd00000
+after dlopen. handle=7fd523c04cc0
 i=1
 calling dlclose
 after dlclose
@@ -80,15 +101,41 @@ echo status=$?
 status=0
 ```
 
-### link a shared library at compile time
-
-`i` remains 0 even after `usleep`
+### link a C archive statically at compile time
 
 ```
-$ make clean > /dev/null 2>&1 && make test_compiletime
+$ make clean > /dev/null 2>&1 && make test_compiletime_archive
+go build -buildmode=c-archive -o libgodll.a libgodll.go
+cc -o compiletime_archive compiletime_load.c -L. -lgodll -lpthread
+ld: warning: PIE disabled. Absolute addressing (perhaps -mdynamic-no-pic) not allowed in code signed PIE, but used in runtime.rodata from ./libgodll.a(go.o). To fix this warning, don't compile with -mdynamic-no-pic or link with -Wl,-no_pie
+./compiletime_archive
+compiletime_load started
+#1 i=0
+#2 i=1
+#3 i=1
+echo status=$?
+status=0
+```
+
+NOTE: I could suppress the ld warning above by adding `-Wl,-no_pie` to the linker option, however it causes the following link error on Linux.
+
+```
+cc -o compiletime_load compiletime_load.c -L. -lgodll -lpthread -Wl,-no_pie
+/usr/bin/ld: cannot find -lgcc_s
+/usr/bin/ld: cannot find -lgcc_s
+collect2: error: ld returned 1 exit status
+make: *** [compiletime_load] Error 1
+```
+
+### link a shared library at compile time
+
+`i` is not set to 1.
+
+```
+$ make clean > /dev/null 2>&1 && make test_compiletime_shared
 go build -buildmode=c-shared -o libgodll.so libgodll.go
-cc -o compiletime_load compiletime_load.c -L. -lgodll
-LD_LIBRARY_PATH=. ./compiletime_load
+cc -o compiletime_shared compiletime_load.c -L. -lgodll
+LD_LIBRARY_PATH=. ./compiletime_shared
 compiletime_load started
 #1 i=0
 #2 i=0
