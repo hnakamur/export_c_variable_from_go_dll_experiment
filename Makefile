@@ -16,4 +16,4 @@ libgodll.so: libgodll.go
 	go build -buildmode=c-shared -o libgodll.so libgodll.go
 
 clean:
-	-rm runtime_load compileitme_load core libgodll.h libgodll.so
+	-rm runtime_load compiletime_load core libgodll.h libgodll.so
