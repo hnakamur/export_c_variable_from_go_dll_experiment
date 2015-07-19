@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <dlfcn.h>
+#include <unistd.h>
 
 int main(int argc, char **argv) {
 	printf("runtime_load started\n");

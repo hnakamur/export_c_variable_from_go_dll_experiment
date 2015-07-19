@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <dlfcn.h>
+#include <unistd.h>
 #include "libgodll.h"
 
 int main(int argc, char **argv) {

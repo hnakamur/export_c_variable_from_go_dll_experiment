@@ -69,15 +69,10 @@ Darwin Kernel Version 14.4.0: Thu May 28 11:35:04 PDT 2015; root:xnu-2782.30.5~1
 ```
 $ make clean > /dev/null 2>&1 && make test_runtime
 cc -o runtime_load runtime_load.c  -ldl
-runtime_load.c:12:2: warning: implicit declaration of function 'usleep' is
-      invalid in C99 [-Wimplicit-function-declaration]
-        usleep(1000 * 1000);
-        ^
-1 warning generated.
 go build -buildmode=c-shared -o libgodll.so libgodll.go
 LD_LIBRARY_PATH=. ./runtime_load
 runtime_load started
-after dlopen. handle=7f925bc04cc0
+after dlopen. handle=7fedebd00000
 i=1
 calling dlclose
 after dlclose
@@ -93,11 +88,6 @@ status=0
 $ make clean > /dev/null 2>&1 && make test_compiletime
 go build -buildmode=c-shared -o libgodll.so libgodll.go
 cc -o compiletime_load compiletime_load.c -L. -lgodll
-compiletime_load.c:10:2: warning: implicit declaration of function 'usleep' is
-      invalid in C99 [-Wimplicit-function-declaration]
-        usleep(1000 * 1000);
-        ^
-1 warning generated.
 LD_LIBRARY_PATH=. ./compiletime_load
 compiletime_load started
 #1 i=0
