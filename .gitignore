@@ -1,4 +1,5 @@
 compiletime_load
 runtime_load
+libgodll.a
 libgodll.h
 libgodll.so
