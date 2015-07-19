@@ -9,8 +9,15 @@ libgodll.so: libgodll.go
 	go build -buildmode=c-shared -o libgodll.so libgodll.go
 
 
-test_compiletime: compiletime_load
-	./compiletime_load
+test_compiletime_shared: compiletime_shared libgodll.so
+	LD_LIBRARY_PATH=. ./compiletime_shared
+	echo status=$$?
+
+compiletime_shared: libgodll.so compiletime_load.c
+	$(CC) -o compiletime_shared compiletime_load.c -L. -lgodll
+
+test_compiletime_archive: compiletime_archive
+	./compiletime_archive
 	echo status=$$?
 
 # NOTE: -lthread is needed on Linux to avoid link error
@@ -26,12 +33,12 @@ test_compiletime: compiletime_load
 #   /usr/bin/ld: cannot find -lgcc_s
 #   collect2: error: ld returned 1 exit status
 #   make: *** [compiletime_load] Error 1
-compiletime_load: libgodll.a compiletime_load.c
-	$(CC) -o compiletime_load compiletime_load.c -L. -lgodll -lpthread
+compiletime_archive: libgodll.a compiletime_load.c
+	$(CC) -o compiletime_archive compiletime_load.c -L. -lgodll -lpthread
 
 libgodll.a: libgodll.go
 	go build -buildmode=c-archive -o libgodll.a libgodll.go
 
 
 clean:
-	-rm runtime_load compiletime_load core libgodll.h libgodll.so libgodll.a
+	-rm runtime_load compiletime_shared compiletime_archive core libgodll.h libgodll.so libgodll.a
